@@ -1,0 +1,17 @@
+{
+  "name": "Roma's Café Diner",
+  "short_name": "Roma's",
+  "description": "Cafe • Restaurant • Diner — serving Varanasi since 2016.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf8f3",
+  "theme_color": "#a56b24",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
