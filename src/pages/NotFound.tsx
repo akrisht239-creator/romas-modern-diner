@@ -1,26 +1,44 @@
-import { motion } from "framer-motion";
+import { Link } from "react-router";
+import { ArrowLeft } from "lucide-react";
+import { Monogram } from "@/components/Header";
+import { usePageMeta } from "@/components/shared";
+import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen flex flex-col"
-    >
+  usePageMeta(
+    "Page Not Found — Roma's Café Diner",
+    "The page you're looking for doesn't exist. Head back to Roma's Café Diner.",
+  );
 
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="max-w-5xl mx-auto relative px-4">
-          <div className="flex items-center justify-center min-h-[200px]">
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
-              <p className="text-lg text-gray-600">Page Not Found</p>
-            </div>
-          </div>
-        </div>
+  return (
+    <main className="flex min-h-[100svh] flex-col items-center justify-center bg-ink px-5 text-center">
+      <Monogram />
+      <p className="eyebrow mt-8 text-brass">404</p>
+      <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ivory md:text-5xl">
+        This table isn&rsquo;t set.
+      </h1>
+      <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-ivory/60">
+        The page you&rsquo;re looking for doesn&rsquo;t exist — but the menu
+        does.
+      </p>
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <Button
+          asChild
+          className="h-12 rounded-full bg-brass px-7 font-sans text-sm font-semibold tracking-wide text-ivory shadow-none transition-colors hover:bg-ivory hover:text-ink"
+        >
+          <Link to="/menu">
+            <ArrowLeft className="mr-2 size-4" aria-hidden="true" />
+            View Menu
+          </Link>
+        </Button>
+        <Button
+          asChild
+          variant="outline"
+          className="h-12 rounded-full border border-ivory/30 bg-transparent px-7 font-sans text-sm font-semibold tracking-wide text-ivory shadow-none transition-colors hover:border-ivory hover:bg-ivory/10"
+        >
+          <Link to="/">Back Home</Link>
+        </Button>
       </div>
-    </motion.div>
+    </main>
   );
 }

@@ -55,7 +55,7 @@ export const MENU_ITEMS: MenuItem[] = [
   { category: "food", subcategory: "non-veg", name: "Chicken Steak", description: "Flame-seared chicken steak with a pan-drip jus.", featured: true, image: unsplash("1600891964092-4316c288032e") },
   { category: "food", subcategory: "non-veg", name: "Chicken Burger", description: "Crisp-fried chicken fillet in a soft bun with house sauces." },
   { category: "food", subcategory: "non-veg", name: "Chicken Sandwich", description: "Toasted sandwich layered with seasoned chicken and greens." },
-  { category: "food", subcategory: "non-veg", name: "Chicken Lasagna", description: "Oven-baked layers of pasta, chicken ragù and béchamel." },
+  { category: "food", subcategory: "non-veg", name: "Chicken Lasagna", description: "Oven-baked layers of pasta, chicken ragù and béchamel.", featured: true, image: unsplash("1619895092538-128341789043") },
   { category: "food", subcategory: "non-veg", name: "Chicken Hakka Noodles", description: "Wok-tossed noodles with shredded chicken and vegetables." },
   { category: "food", subcategory: "non-veg", name: "Chicken Fried Rice", description: "Fried rice tossed with chicken, egg and spring onion." },
   { category: "food", subcategory: "non-veg", name: "Chicken Tikka", description: "Char-grilled chicken, marinated in spiced yoghurt." },

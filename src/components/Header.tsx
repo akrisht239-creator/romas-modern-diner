@@ -55,7 +55,13 @@ export default function Header() {
           : "border-b border-transparent bg-transparent",
       )}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 md:h-[72px] md:px-8">
+      <div
+        className={cn(
+          "mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 md:h-[72px] md:px-8",
+          !scrolled &&
+            "text-ivory [&_.text-foreground]:text-ivory [&_.text-muted-foreground]:text-ivory/60",
+        )}
+      >
         <Link
           to="/"
           className="group flex items-center gap-3"
@@ -106,7 +112,12 @@ export default function Header() {
           )}
           <Button
             asChild
-            className="rounded-full bg-ink px-5 font-sans text-[13px] font-semibold tracking-wide text-ivory shadow-none transition-colors hover:bg-brass hover:text-ivory"
+            className={cn(
+              "rounded-full px-5 font-sans text-[13px] font-semibold tracking-wide shadow-none transition-colors",
+              scrolled
+                ? "bg-ink text-ivory hover:bg-brass hover:text-ivory"
+                : "bg-ivory text-ink hover:bg-brass hover:text-ivory",
+            )}
           >
             <Link to="/menu">View Menu</Link>
           </Button>

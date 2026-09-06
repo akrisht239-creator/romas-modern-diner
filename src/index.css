@@ -45,8 +45,6 @@
   --color-ink: var(--ink);
   --color-brass: var(--brass);
   --color-brass-deep: var(--brass-deep);
-  --font-display: var(--font-display), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* CHANGE VALUES FOR THEME — Roma's Café Diner "Modern" theme:

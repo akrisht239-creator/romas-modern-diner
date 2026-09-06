@@ -180,7 +180,7 @@ export default function ReservationForm() {
             name="time"
             required
             defaultValue="19:00"
-            className={cn(inputCls, "mt-1.5 appearance-none bg-[length:0]")}
+            className={cn(inputCls, "mt-1.5")}
           >
             {TIME_SLOTS.map((slot) => (
               <option key={slot} value={slot}>

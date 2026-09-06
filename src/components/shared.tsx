@@ -1,15 +1,24 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 /* ── ScrollToTop: resets scroll on route change ─────────────────────────── */
 
 export function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
+    if (hash) {
+      // Let the target section mount, then scroll to it
+      const t = setTimeout(() => {
+        document
+          .getElementById(hash.slice(1))
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 120);
+      return () => clearTimeout(t);
+    }
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-  }, [pathname]);
+  }, [pathname, hash]);
   return null;
 }
 
@@ -54,17 +63,17 @@ export function Reveal({
 
 /* ── Stagger container + item for text reveals ──────────────────────────── */
 
-export const staggerParent = {
+export const staggerParent: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.09, delayChildren: 0.1 } },
 };
 
-export const staggerChild = {
+export const staggerChild: Variants = {
   hidden: { opacity: 0, y: 22 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
   },
 };
 
