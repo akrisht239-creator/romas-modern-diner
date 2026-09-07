@@ -71,17 +71,38 @@ function MenuCard({ item, index }: { item: MenuItem; index: number }) {
         delay: Math.min(index * 0.03, 0.3),
         ease: [0.22, 1, 0.36, 1],
       }}
-      className="group relative rounded-lg border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brass/40 hover:shadow-lg"
+      className="group relative flex gap-4 rounded-lg border border-border bg-card p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-brass/40 hover:shadow-lg sm:gap-5 md:p-5"
     >
-      <div className="flex items-start justify-between gap-4">
-        <h3 className="font-display text-lg font-semibold leading-snug tracking-tight text-ink transition-colors group-hover:text-brass md:text-xl">
-          {item.name}
-        </h3>
-        {item.subcategory && <VegBadge type={item.subcategory} />}
+      {/* Item photo */}
+      {item.image && (
+        <div className="relative size-20 shrink-0 overflow-hidden rounded-md bg-ink/5 sm:size-24">
+          <img
+            src={item.image}
+            alt={item.name}
+            loading="lazy"
+            decoding="async"
+            className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.07]"
+          />
+          {/* warm duotone veil that lifts on hover */}
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 bg-ink/10 transition-opacity duration-500 group-hover:opacity-0"
+          />
+        </div>
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="font-display text-lg font-semibold leading-snug tracking-tight text-ink transition-colors group-hover:text-brass md:text-xl">
+            {item.name}
+          </h3>
+          {item.subcategory && <VegBadge type={item.subcategory} />}
+        </div>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          {item.description}
+        </p>
       </div>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        {item.description}
-      </p>
+
       {/* hairline accent on hover */}
       <span
         aria-hidden="true"
