@@ -110,6 +110,14 @@ export default function Header() {
               Call
             </a>
           )}
+          <a
+            href={RESTAURANT.zomatoOrderUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Order Online
+          </a>
           <Button
             asChild
             className={cn(
@@ -200,9 +208,17 @@ export default function Header() {
                     href={phone}
                     className="rounded-full border border-ink/20 py-3 text-center text-sm font-semibold tracking-wide text-ink"
                   >
-                    Call the diner
+                    Call {RESTAURANT.phoneDisplay}
                   </a>
                 )}
+                <a
+                  href={RESTAURANT.zomatoOrderUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-ink/20 py-3 text-center text-sm font-semibold tracking-wide text-ink"
+                >
+                  Order on Zomato
+                </a>
                 <Button
                   asChild
                   className="h-12 rounded-full bg-ink font-sans text-sm font-semibold tracking-wide text-ivory hover:bg-brass"

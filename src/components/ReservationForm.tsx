@@ -1,7 +1,16 @@
 import { useState, type FormEvent } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { CheckCircle2, Loader2, Send } from "lucide-react";
+import { isBackendConfigured } from "@/lib/backend";
+import { RESTAURANT, telHref } from "@/data/restaurant";
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  Loader2,
+  MessageCircle,
+  Phone,
+  Send,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -21,7 +30,62 @@ function labelForSlot(slot: string) {
 const inputCls =
   "w-full border-b border-input bg-transparent px-0 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-brass";
 
-export default function ReservationForm() {
+/**
+ * Shown when no booking backend is configured (demo / preview builds):
+ * guests can still reach the diner instantly via call / WhatsApp / Zomato.
+ */
+function DirectBookingFallback() {
+  const phone = telHref(RESTAURANT.phone);
+  return (
+    <div className="card-quiet flex flex-col items-center px-8 py-12 text-center">
+      <span className="grid size-14 place-items-center rounded-full bg-brass/10">
+        <Phone className="size-6 text-brass" aria-hidden="true" />
+      </span>
+      <h3 className="mt-5 font-display text-2xl font-semibold tracking-tight text-ink">
+        Book straight with the diner
+      </h3>
+      <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
+        Call or WhatsApp {RESTAURANT.phoneDisplay} — the team confirms tables
+        daily, {RESTAURANT.openingHoursShort}.
+      </p>
+      <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+        {phone && (
+          <Button
+            asChild
+            className="h-12 rounded-full bg-ink px-7 font-sans text-sm font-semibold tracking-wide text-ivory shadow-none transition-colors hover:bg-brass"
+          >
+            <a href={phone}>
+              <Phone className="mr-2 size-4" aria-hidden="true" />
+              {RESTAURANT.phoneDisplay}
+            </a>
+          </Button>
+        )}
+        <Button
+          asChild
+          variant="outline"
+          className="h-12 rounded-full border border-ink/20 bg-transparent px-7 font-sans text-sm font-semibold tracking-wide text-ink shadow-none transition-colors hover:bg-ink hover:text-ivory"
+        >
+          <a href={RESTAURANT.whatsapp} target="_blank" rel="noopener noreferrer">
+            <MessageCircle className="mr-2 size-4" aria-hidden="true" />
+            WhatsApp
+          </a>
+        </Button>
+        <Button
+          asChild
+          variant="outline"
+          className="h-12 rounded-full border border-ink/20 bg-transparent px-7 font-sans text-sm font-semibold tracking-wide text-ink shadow-none transition-colors hover:bg-ink hover:text-ivory"
+        >
+          <a href={RESTAURANT.zomatoBookUrl} target="_blank" rel="noopener noreferrer">
+            Zomato Booking
+            <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
+          </a>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function EnquiryForm() {
   const createEnquiry = useMutation(api.enquiries.createEnquiry);
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error"
@@ -30,11 +94,20 @@ export default function ReservationForm() {
   const [guests, setGuests] = useState(2);
 
   const today = new Date().toISOString().split("T")[0];
+  const phone = telHref(RESTAURANT.phone);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const data = new FormData(form);
+    const phoneRaw = String(data.get("phone") ?? "").replace(/\D/g, "");
+    // Basic Indian mobile validation (10 digits, optional 91 prefix).
+    const digits = phoneRaw.replace(/^91(?=\d{10}$)/, "");
+    if (!/^[6-9]\d{9}$/.test(digits)) {
+      setStatus("error");
+      setErrorMsg("Please enter a valid 10-digit mobile number.");
+      return;
+    }
     setStatus("submitting");
     setErrorMsg(null);
     try {
@@ -103,6 +176,7 @@ export default function ReservationForm() {
             type="text"
             required
             minLength={2}
+            maxLength={60}
             autoComplete="name"
             placeholder="Your full name"
             className={cn(inputCls, "mt-1.5")}
@@ -111,7 +185,7 @@ export default function ReservationForm() {
 
         <div>
           <label htmlFor="rf-phone" className="eyebrow text-muted-foreground">
-            Phone
+            Mobile Number
           </label>
           <input
             id="rf-phone"
@@ -120,7 +194,9 @@ export default function ReservationForm() {
             required
             autoComplete="tel"
             inputMode="tel"
-            placeholder="Your phone number"
+            pattern="[6-9][0-9]{9}"
+            title="Enter a valid 10-digit Indian mobile number"
+            placeholder="10-digit mobile number"
             className={cn(inputCls, "mt-1.5")}
           />
         </div>
@@ -198,6 +274,7 @@ export default function ReservationForm() {
             id="rf-message"
             name="message"
             rows={3}
+            maxLength={500}
             placeholder="Anything we should know — occasion, seating preference…"
             className={cn(inputCls, "mt-1.5 resize-none")}
           />
@@ -214,6 +291,14 @@ export default function ReservationForm() {
         <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
           Send your details and the team will confirm by phone. Subject to
           availability.
+          {phone && (
+            <>
+              {" "}In a hurry?{" "}
+              <a href={phone} className="font-semibold text-brass hover:underline">
+                Call {RESTAURANT.phoneDisplay}
+              </a>
+            </>
+          )}
         </p>
         <Button
           type="submit"
@@ -235,4 +320,9 @@ export default function ReservationForm() {
       </div>
     </form>
   );
+}
+
+export default function ReservationForm() {
+  if (!isBackendConfigured()) return <DirectBookingFallback />;
+  return <EnquiryForm />;
 }
