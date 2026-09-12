@@ -143,7 +143,7 @@ export function SectionHeading({
   );
 }
 
-/* ── SmartImage: lazy, responsive Unsplash image with slow zoom option ──── */
+/* ── SmartImage: lazy image with optional fallback + slow zoom option ───── */
 
 export function SmartImage({
   src,
@@ -152,6 +152,7 @@ export function SmartImage({
   imgClassName,
   zoom = false,
   priority = false,
+  fallbackSrc,
 }: {
   src: string;
   alt: string;
@@ -159,9 +160,13 @@ export function SmartImage({
   imgClassName?: string;
   zoom?: boolean;
   priority?: boolean;
+  /** Swapped in once if `src` fails to load (e.g. hotlink blocked). */
+  fallbackSrc?: string;
 }) {
   const ref = useRef<HTMLImageElement>(null);
   const [loaded, setLoaded] = useState(false);
+  const [current, setCurrent] = useState(src);
+  const [fellBack, setFellBack] = useState(false);
 
   useEffect(() => {
     if (ref.current?.complete) setLoaded(true);
@@ -176,11 +181,17 @@ export function SmartImage({
     >
       <img
         ref={ref}
-        src={src}
+        src={current}
         alt={alt}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
         onLoad={() => setLoaded(true)}
+        onError={() => {
+          if (fallbackSrc && !fellBack) {
+            setFellBack(true);
+            setCurrent(fallbackSrc);
+          }
+        }}
         className={cn(
           "size-full object-cover transition-[opacity,transform] duration-700 ease-out",
           loaded ? "opacity-100" : "opacity-0",
@@ -225,7 +236,7 @@ export function RatingStars({
   );
 }
 
-/* ── DisclaimerNote: subtle sample-menu development label ───────────────── */
+/* ── DisclaimerNote: subtle menu-source label ───────────────────────────── */
 
 export function DisclaimerNote({ className }: { className?: string }) {
   return (
@@ -243,8 +254,8 @@ export function DisclaimerNote({ className }: { className?: string }) {
         <circle cx="8" cy="8" r="6.5" strokeWidth="1.2" />
         <path d="M8 5v3.5M8 10.8v.2" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
-      Sample menu shown for website preview. Official menu will be updated
-      from the restaurant&rsquo;s verified menu.
+      Menu items from the restaurant&rsquo;s public listing. Prices as per the
+      in-cafe menu &amp; Zomato.
     </p>
   );
 }

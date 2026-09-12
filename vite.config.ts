@@ -92,6 +92,8 @@ export default defineConfig({
     // Bind to all interfaces so WebContainer's server-ready event fires.
     host: true,
     port: 5173,
+    // Allow sandbox / preview proxy hosts.
+    allowedHosts: true,
     // Keep HMR on, but disable full-screen error overlay
     hmr: {
       overlay: false,

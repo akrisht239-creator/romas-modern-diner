@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Clock, MapPin } from "lucide-react";
+import { ArrowUpRight, Clock, MapPin, Phone } from "lucide-react";
 import { RESTAURANT, telHref } from "@/data/restaurant";
 
 const QUICK_LINKS = [
@@ -33,13 +33,20 @@ export default function Footer() {
             </div>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-ivory/60">
               A welcoming place to eat, unwind and stay a little longer —
-              serving {RESTAURANT.city} since {RESTAURANT.established}.
+              serving {RESTAURANT.area}, {RESTAURANT.city} since{" "}
+              {RESTAURANT.established}.
+            </p>
+            <p className="mt-4 flex items-center gap-2 text-sm text-ivory/70">
+              <span className="font-display text-base font-semibold text-brass">
+                {RESTAURANT.zomatoRating}★
+              </span>
+              on Zomato · {RESTAURANT.costForTwo} for two
             </p>
           </div>
 
           {/* Quick links */}
           <nav aria-label="Footer">
-            <p className="eyebrow text-ivory/40">Quick Links</p>
+            <p className="eyebrow text-ivory/40">Explore</p>
             <ul className="mt-4 space-y-2.5">
               {QUICK_LINKS.map((link) => (
                 <li key={link.to}>
@@ -51,43 +58,62 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <a
+                  href={RESTAURANT.zomatoOrderUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm text-ivory/70 transition-colors hover:text-brass"
+                >
+                  Order on Zomato
+                  <ArrowUpRight className="size-3.5" aria-hidden="true" />
+                </a>
+              </li>
             </ul>
           </nav>
 
-          {/* Contact + hours — verified info only */}
+          {/* Contact + hours */}
           <div>
             <p className="eyebrow text-ivory/40">Find Us</p>
             <ul className="mt-4 space-y-3 text-sm text-ivory/70">
               <li className="flex items-start gap-2.5">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-brass" />
-                {RESTAURANT.address ? (
-                  <span>{RESTAURANT.address}</span>
-                ) : (
-                  <a
-                    href={RESTAURANT.mapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="transition-colors hover:text-brass"
-                  >
-                    {RESTAURANT.city}, Uttar Pradesh — find us on Google Maps
-                  </a>
-                )}
+                <a
+                  href={RESTAURANT.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-brass"
+                >
+                  {RESTAURANT.address}
+                </a>
               </li>
               <li className="flex items-start gap-2.5">
                 <Clock className="mt-0.5 size-4 shrink-0 text-brass" />
                 <span>
                   {RESTAURANT.openingHours}
-                  <span className="block text-xs text-ivory/45">Daily</span>
+                  <span className="block text-xs text-ivory/45">Open every day</span>
                 </span>
               </li>
               {phone && (
-                <li>
-                  <a
-                    href={phone}
-                    className="transition-colors hover:text-brass"
-                  >
-                    {RESTAURANT.phoneDisplay ?? RESTAURANT.phone}
-                  </a>
+                <li className="flex items-start gap-2.5">
+                  <Phone className="mt-0.5 size-4 shrink-0 text-brass" />
+                  <span>
+                    <a
+                      href={phone}
+                      className="block transition-colors hover:text-brass"
+                    >
+                      {RESTAURANT.phoneDisplay}
+                    </a>
+                    {RESTAURANT.extraPhones.map((p) => (
+                      <a
+                        key={p.href}
+                        href={p.href}
+                        className="block text-[13px] text-ivory/55 transition-colors hover:text-brass"
+                      >
+                        {p.display}
+                      </a>
+                    ))}
+                  </span>
                 </li>
               )}
               {RESTAURANT.instagramUrl && (
@@ -112,7 +138,8 @@ export default function Footer() {
             reserved.
           </p>
           <p>
-            Cafe · Restaurant · Diner · {RESTAURANT.city}
+            FSSAI Lic. No. {RESTAURANT.fssai} · {RESTAURANT.area},{" "}
+            {RESTAURANT.city}
           </p>
         </div>
       </div>

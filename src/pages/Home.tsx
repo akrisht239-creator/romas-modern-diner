@@ -1,9 +1,10 @@
 import { useRef } from "react";
 import { Link } from "react-router";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, ArrowUpRight, MapPin, Star } from "lucide-react";
-import { RESTAURANT } from "@/data/restaurant";
+import { ArrowRight, ArrowUpRight, MapPin, Quote, Star } from "lucide-react";
+import { RESTAURANT, isOpenNow } from "@/data/restaurant";
 import { MENU_ITEMS } from "@/data/menu";
+import { GUEST_REVIEWS, GALLERY_IMAGES, HERO_IMAGE, INTRO_IMAGES } from "@/data/reviews";
 import { InstagramSection } from "@/components/InstagramSection";
 import {
   RatingStars,
@@ -16,26 +17,23 @@ import {
 } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 
-const HERO_IMG =
-  "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=2000&q=75";
-const INTRO_IMG_TALL =
-  "https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=900&q=75";
-const INTRO_IMG_SMALL =
-  "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=75";
+/** Generic fallback if a dish hotlink is ever blocked. */
+const DISH_FALLBACK =
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=70";
 
 const TRUST_STATS = [
-  { value: "4.3", label: "Google Rating", star: true },
-  { value: "9,500+", label: "Google Reviews", star: false },
-  { value: "4.6", label: "Zomato Dining Rating", star: true },
-  { value: "Since 2016", label: "Established", star: false },
+  { value: RESTAURANT.googleRating, label: "Google Rating", star: true },
+  { value: RESTAURANT.googleReviews, label: "Google Reviews", star: false },
+  { value: RESTAURANT.zomatoRating, label: "Zomato Rating", star: true },
+  { value: RESTAURANT.zomatoDeliveryReviews, label: "Zomato Delivery Ratings", star: false },
 ] as const;
 
 const FEATURED = MENU_ITEMS.filter((item) => item.featured);
 
 export default function Home() {
   usePageMeta(
-    "Roma's Café Diner — Cafe, Restaurant & Diner in Varanasi",
-    "Good Food. Great Company. Roma's Café Diner — a welcoming cafe, restaurant and diner in Varanasi since 2016. Explore the menu and visit us, open daily 11 AM – 11 PM.",
+    "Roma's Café Diner — Cafe, Restaurant & Diner in Lanka, Varanasi",
+    "Roma's Café Diner, Lanka Varanasi — pizzas, pastas, steaks, sushi, Indian classics, shakes & desserts since 2016. Zomato 4.5★ · Open daily 11 AM – 11 PM.",
   );
 
   const introImgRef = useRef<HTMLDivElement>(null);
@@ -45,6 +43,7 @@ export default function Home() {
     offset: ["start end", "end start"],
   });
   const parallaxY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [-36, 36]);
+  const open = isOpenNow();
 
   return (
     <>
@@ -52,7 +51,8 @@ export default function Home() {
       <section className="relative flex min-h-[100svh] flex-col overflow-hidden bg-ink">
         <div className="absolute inset-0" aria-hidden="true">
           <SmartImage
-            src={HERO_IMG}
+            src={HERO_IMAGE.src}
+            fallbackSrc={HERO_IMAGE.fallback}
             alt=""
             className="size-full"
             imgClassName="hero-zoom-img"
@@ -67,7 +67,7 @@ export default function Home() {
           aria-hidden="true"
           className="writing-vertical absolute right-6 top-1/2 hidden -translate-y-1/2 select-none font-display text-xs tracking-[0.35em] text-ivory/45 lg:block"
         >
-          EST. 2016 — {RESTAURANT.city.toUpperCase()}
+          EST. {RESTAURANT.established} — {RESTAURANT.area.toUpperCase()}, {RESTAURANT.city.toUpperCase()}
         </span>
 
         <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-5 pb-28 pt-36 md:px-8 md:pt-40">
@@ -82,7 +82,7 @@ export default function Home() {
               className="eyebrow mb-5 flex items-center gap-3 text-brass"
             >
               <span aria-hidden="true" className="inline-block h-px w-10 bg-brass" />
-              Cafe · Restaurant · Diner
+              Cafe · Restaurant · Diner — {RESTAURANT.area}, {RESTAURANT.city}
             </motion.p>
 
             <motion.h1
@@ -97,9 +97,9 @@ export default function Home() {
               variants={staggerChild}
               className="mt-6 max-w-xl text-[15px] leading-relaxed text-ivory/70 md:text-base"
             >
-              A welcoming cafe, restaurant and diner in {RESTAURANT.city} —
-              serving a varied menu of food and beverages to guests since{" "}
-              {RESTAURANT.established}.
+              {MENU_ITEMS.length}+ dishes & pours — pizzas, pastas, sizzling
+              steaks, sushi, tandoor classics & thick shakes — served in the
+              heart of {RESTAURANT.area} since {RESTAURANT.established}.
             </motion.p>
 
             <motion.div
@@ -120,7 +120,10 @@ export default function Home() {
                 className="h-12 rounded-full border border-ivory/30 bg-transparent px-8 font-sans text-sm font-semibold tracking-wide text-ivory shadow-none transition-colors hover:border-ivory hover:bg-ivory/10"
                 variant="outline"
               >
-                <Link to="/visit">Visit Us</Link>
+                <a href={RESTAURANT.zomatoOrderUrl} target="_blank" rel="noopener noreferrer">
+                  Order on Zomato
+                  <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
+                </a>
               </Button>
             </motion.div>
 
@@ -130,16 +133,23 @@ export default function Home() {
             >
               <span className="flex items-center gap-2">
                 <Star className="size-3.5 fill-brass text-brass" aria-hidden="true" />
+                <strong className="font-semibold text-ivory">{RESTAURANT.zomatoRating}</strong>
+                on Zomato ({RESTAURANT.zomatoDeliveryReviews})
+              </span>
+              <span className="hidden h-3 w-px bg-ivory/25 sm:block" aria-hidden="true" />
+              <span className="flex items-center gap-2">
+                <Star className="size-3.5 fill-brass text-brass" aria-hidden="true" />
                 <strong className="font-semibold text-ivory">{RESTAURANT.googleRating}</strong>
-                Google rating
+                on Google
               </span>
               <span className="hidden h-3 w-px bg-ivory/25 sm:block" aria-hidden="true" />
-              <span>
-                <strong className="font-semibold text-ivory">{RESTAURANT.googleReviews}</strong>{" "}
-                Google reviews
+              <span className="flex items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className={`size-1.5 rounded-full ${open ? "bg-emerald-400" : "bg-red-400"}`}
+                />
+                {open ? "Open now" : "Opens 11 AM"} · {RESTAURANT.openingHoursShort} daily
               </span>
-              <span className="hidden h-3 w-px bg-ivory/25 sm:block" aria-hidden="true" />
-              <span>Open daily · {RESTAURANT.openingHoursShort}</span>
             </motion.div>
           </motion.div>
         </div>
@@ -189,7 +199,8 @@ export default function Home() {
               ))}
             </dl>
             <p className="mt-8 text-sm text-muted-foreground">
-              Serving guests since {RESTAURANT.established}.
+              Serving {RESTAURANT.area}, {RESTAURANT.city} since {RESTAURANT.established} ·{" "}
+              {RESTAURANT.costForTwo} for two (approx).
             </p>
           </Reveal>
         </div>
@@ -202,7 +213,7 @@ export default function Home() {
             {/* Sticky heading column */}
             <div className="lg:sticky lg:top-28">
               <SectionHeading
-                eyebrow="Since 2016"
+                eyebrow={`Since ${RESTAURANT.established}`}
                 title={
                   <span id="intro-heading">
                     A Place to Eat, Unwind &amp; Stay a Little Longer
@@ -212,15 +223,15 @@ export default function Home() {
               <Reveal delay={0.1} className="mt-6 space-y-4 text-[15px] leading-relaxed text-muted-foreground">
                 <p>
                   Roma&rsquo;s Café Diner is a cafe, restaurant and diner rolled
-                  into one — a relaxed room where long lunches, quick coffee
-                  stops and unhurried dinners all feel at home.
+                  into one — a relaxed, white exposed-brick room above Swastik
+                  Plaza where long lunches, quick coffee stops and unhurried
+                  dinners all feel at home.
                 </p>
                 <p>
-                  The kitchen covers a lot of ground: hearty mains, pastas,
-                  pizzas and café classics, alongside shakes, coffees and
-                  all-day beverages. Whether it&rsquo;s a table of friends or a
-                  quiet corner seat, there&rsquo;s something on the menu for
-                  everyone.
+                  The kitchen covers serious ground: wood-fired-style pizzas,
+                  pastas & lasagne, sizzling steaks, sushi & dim sums, tandoor
+                  classics, dum biryanis — plus shakes, coffees, mocktails and
+                  all-day beverages. {RESTAURANT.cuisines.join(" · ")}.
                 </p>
                 <p>
                   Serving {RESTAURANT.city} since {RESTAURANT.established}, the
@@ -243,7 +254,8 @@ export default function Home() {
             <div ref={introImgRef} className="relative">
               <Reveal className="relative z-10 ml-auto w-[86%]">
                 <SmartImage
-                  src={INTRO_IMG_TALL}
+                  src={INTRO_IMAGES.tall.src}
+                  fallbackSrc={INTRO_IMAGES.tall.fallback}
                   alt="Inside Roma's Café Diner — warm café atmosphere"
                   className="aspect-[4/5] rounded-lg border border-border"
                 />
@@ -253,8 +265,9 @@ export default function Home() {
                 className="absolute -bottom-10 left-0 z-20 w-[52%]"
               >
                 <SmartImage
-                  src={INTRO_IMG_SMALL}
-                  alt="Fresh coffee and café moments at Roma's"
+                  src={INTRO_IMAGES.small.src}
+                  fallbackSrc={INTRO_IMAGES.small.fallback}
+                  alt="Fresh plates at Roma's Café Diner"
                   className="aspect-square rounded-lg border-4 border-ivory shadow-lg"
                 />
               </motion.div>
@@ -264,10 +277,10 @@ export default function Home() {
               >
                 <div className="card-quiet px-5 py-4">
                   <p className="font-display text-2xl font-semibold text-ink">
-                    {RESTAURANT.established}
+                    {MENU_ITEMS.length}+
                   </p>
                   <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                    Serving since
+                    Dishes & pours
                   </p>
                 </div>
               </Reveal>
@@ -283,7 +296,7 @@ export default function Home() {
             <SectionHeading
               eyebrow="Guest Favourites"
               title={<span id="featured-heading">Known for these</span>}
-              lede="Dishes and drinks our guests come back for — from the sizzler-grade steak to the shake everyone photographs."
+              lede="From the tandoor to Tokyo via Italy — the plates Varanasi keeps coming back for."
             />
             <Reveal delay={0.1} className="hidden md:block">
               <Button
@@ -299,19 +312,22 @@ export default function Home() {
             </Reveal>
           </div>
 
-          <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
+          <div className="mt-12 grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
             {FEATURED.map((item, i) => (
-              <Reveal key={item.name} delay={i * 0.06}>
+              <Reveal key={item.name} delay={i * 0.05}>
                 <Link
                   to="/menu"
                   className="group block overflow-hidden rounded-lg border border-border bg-card transition-shadow duration-500 hover:shadow-xl"
                 >
-                  <SmartImage
-                    src={item.image!}
-                    alt={item.name}
-                    className="aspect-[4/3]"
-                    imgClassName="transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
+                  {item.image && (
+                    <SmartImage
+                      src={item.image}
+                      fallbackSrc={DISH_FALLBACK}
+                      alt={item.name}
+                      className="aspect-[4/3]"
+                      imgClassName="transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                  )}
                   <div className="flex items-center justify-between gap-3 px-4 py-3.5 md:px-5">
                     <div>
                       <h3 className="font-display text-[15px] font-semibold tracking-tight text-ink md:text-base">
@@ -344,6 +360,30 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── GALLERY ──────────────────────────────────────────────────────── */}
+      <section className="py-16 md:py-24" aria-labelledby="gallery-heading">
+        <div className="mx-auto max-w-6xl px-5 md:px-8">
+          <SectionHeading
+            eyebrow="Glimpses"
+            title={<span id="gallery-heading">Inside Roma&rsquo;s</span>}
+            lede="Real plates, real room — from the diner's own gallery."
+          />
+          <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
+            {GALLERY_IMAGES.map((img, i) => (
+              <Reveal key={img.src} delay={i * 0.05}>
+                <SmartImage
+                  src={img.src}
+                  fallbackSrc={DISH_FALLBACK}
+                  alt={img.alt}
+                  className="aspect-[4/3] rounded-lg border border-border"
+                  imgClassName="transition-transform duration-700 ease-out hover:scale-105"
+                />
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── REVIEWS ──────────────────────────────────────────────────────── */}
       <section className="bg-ink py-16 md:py-24" aria-labelledby="reviews-heading">
         <div className="mx-auto max-w-6xl px-5 md:px-8">
@@ -366,15 +406,7 @@ export default function Home() {
                   <RatingStars rating={RESTAURANT.googleRating} />
                 </dt>
                 <dd className="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-ivory/50">
-                  Google Rating
-                </dd>
-              </div>
-              <div className="card-quiet border-ivory/10 bg-ivory/[0.04] px-6 py-8 text-center">
-                <dd className="font-display text-4xl font-semibold text-ivory">
-                  {RESTAURANT.googleReviews}
-                </dd>
-                <dd className="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-ivory/50">
-                  Google Reviews
+                  Google · {RESTAURANT.googleReviews} reviews
                 </dd>
               </div>
               <div className="card-quiet border-ivory/10 bg-ivory/[0.04] px-6 py-8 text-center">
@@ -382,27 +414,100 @@ export default function Home() {
                   {RESTAURANT.zomatoRating}
                   <Star className="mb-2 ml-1 inline size-4 fill-brass text-brass" aria-hidden="true" />
                 </dd>
+                <dt className="mt-2 flex items-center justify-center gap-2">
+                  <RatingStars rating={RESTAURANT.zomatoRating} />
+                </dt>
                 <dd className="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-ivory/50">
-                  Zomato Dining Rating
+                  Zomato Dining · {RESTAURANT.zomatoDiningReviews}
+                </dd>
+              </div>
+              <div className="card-quiet border-ivory/10 bg-ivory/[0.04] px-6 py-8 text-center">
+                <dd className="font-display text-4xl font-semibold text-ivory">
+                  {RESTAURANT.zomatoDeliveryRating}
+                  <Star className="mb-2 ml-1 inline size-4 fill-brass text-brass" aria-hidden="true" />
+                </dd>
+                <dt className="mt-2 flex items-center justify-center gap-2">
+                  <RatingStars rating={RESTAURANT.zomatoDeliveryRating} />
+                </dt>
+                <dd className="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-ivory/50">
+                  Zomato Delivery · {RESTAURANT.zomatoDeliveryReviews}
                 </dd>
               </div>
             </dl>
           </Reveal>
 
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {GUEST_REVIEWS.slice(0, 3).map((review, i) => (
+              <Reveal key={review.name} delay={0.1 + i * 0.06}>
+                <figure className="flex h-full flex-col rounded-lg border border-ivory/10 bg-ivory/[0.04] px-6 py-7">
+                  <Quote className="size-5 text-brass" aria-hidden="true" />
+                  <blockquote className="mt-4 flex-1 font-display text-lg leading-snug text-ivory">
+                    &ldquo;{review.text}&rdquo;
+                  </blockquote>
+                  <figcaption className="mt-5 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-ivory">{review.name}</p>
+                      <p className="mt-0.5 text-xs text-ivory/45">
+                        {review.meta} · via Zomato
+                      </p>
+                    </div>
+                    <RatingStars rating={String(review.rating)} />
+                  </figcaption>
+                </figure>
+              </Reveal>
+            ))}
+          </div>
+
           <Reveal delay={0.15} className="mt-10 text-center">
-            <Button
-              asChild
-              className="h-12 rounded-full bg-brass px-8 font-sans text-sm font-semibold tracking-wide text-ivory shadow-none transition-colors hover:bg-ivory hover:text-ink"
-            >
-              <a href={RESTAURANT.mapsUrl} target="_blank" rel="noopener noreferrer">
-                View Reviews
-                <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
-              </a>
-            </Button>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Button
+                asChild
+                className="h-12 rounded-full bg-brass px-8 font-sans text-sm font-semibold tracking-wide text-ivory shadow-none transition-colors hover:bg-ivory hover:text-ink"
+              >
+                <a href={RESTAURANT.mapsUrl} target="_blank" rel="noopener noreferrer">
+                  Google Reviews
+                  <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
+                </a>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="h-12 rounded-full border border-ivory/25 bg-transparent px-8 font-sans text-sm font-semibold tracking-wide text-ivory shadow-none transition-colors hover:border-ivory hover:bg-ivory/10"
+              >
+                <a href={RESTAURANT.zomatoReviewsUrl} target="_blank" rel="noopener noreferrer">
+                  Zomato Reviews
+                  <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
+                </a>
+              </Button>
+            </div>
             <p className="mt-4 text-xs text-ivory/40">
               Ratings shown are approximate, as publicly listed.
             </p>
           </Reveal>
+        </div>
+      </section>
+
+      {/* ── ORDER ONLINE BAND ────────────────────────────────────────────── */}
+      <section className="border-b border-border bg-brass py-14 md:py-16" aria-label="Order online">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-5 text-center md:flex-row md:justify-between md:px-8 md:text-left">
+          <div>
+            <p className="eyebrow text-ivory/70">Craving Roma&rsquo;s at home?</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-ivory md:text-4xl">
+              Order delivery on Zomato.
+            </h2>
+            <p className="mt-2 text-sm text-ivory/70">
+              {RESTAURANT.zomatoDeliveryRating}★ across {RESTAURANT.zomatoDeliveryReviews} delivery ratings.
+            </p>
+          </div>
+          <Button
+            asChild
+            className="h-12 shrink-0 rounded-full bg-ivory px-8 font-sans text-sm font-semibold tracking-wide text-ink shadow-none transition-colors hover:bg-ink hover:text-ivory"
+          >
+            <a href={RESTAURANT.zomatoOrderUrl} target="_blank" rel="noopener noreferrer">
+              Order Now
+              <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
+            </a>
+          </Button>
         </div>
       </section>
 
@@ -423,8 +528,9 @@ export default function Home() {
                 Save your seat at Roma&rsquo;s.
               </h2>
               <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">
-                Send a table enquiry and the team will confirm by phone.
-                Walk-ins are welcome daily from {RESTAURANT.openingHoursShort}.
+                Swastik Plaza, {RESTAURANT.area} — walk-ins welcome daily from{" "}
+                {RESTAURANT.openingHoursShort}, or send a table enquiry and the
+                team will confirm by phone.
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                 <Button

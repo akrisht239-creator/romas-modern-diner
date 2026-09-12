@@ -3,6 +3,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { VlyToolbar } from "../vly-toolbar-readonly.tsx";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
+import { isBackendConfigured } from "@/lib/backend";
 import React, { StrictMode, useEffect, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -108,7 +109,10 @@ class RootErrorBoundary extends React.Component<
   }
 }
 
-const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
+const backendOn = isBackendConfigured();
+const convex = backendOn
+  ? new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string)
+  : null;
 
 function RouteSyncer() {
   const location = useLocation();
@@ -133,24 +137,21 @@ function RouteSyncer() {
   return null;
 }
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <RootErrorBoundary>
-      <ToolbarErrorBoundary>
-        <VlyToolbar />
-      </ToolbarErrorBoundary>
-      <ConvexAuthProvider client={convex}>
-        <BrowserRouter>
-          <ScrollToTop />
-          <RouteSyncer />
-          <Routes>
-            <Route element={<SiteLayout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/menu" element={<MenuPage />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/visit" element={<Visit />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
+function AppRoutes() {
+  return (
+    <BrowserRouter>
+      <ScrollToTop />
+      <RouteSyncer />
+      <Routes>
+        <Route element={<SiteLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/menu" element={<MenuPage />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/visit" element={<Visit />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+        {backendOn && (
+          <>
             <Route
               path="/auth"
               element={<AuthPage redirectAfterAuth="/dashboard" />}
@@ -163,10 +164,32 @@ createRoot(document.getElementById("root")!).render(
                 </RequireAuth>
               }
             />
-          </Routes>
-        </BrowserRouter>
-        <Toaster />
-      </ConvexAuthProvider>
+          </>
+        )}
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <RootErrorBoundary>
+      {import.meta.env.DEV && (
+        <ToolbarErrorBoundary>
+          <VlyToolbar />
+        </ToolbarErrorBoundary>
+      )}
+      {convex ? (
+        <ConvexAuthProvider client={convex}>
+          <AppRoutes />
+          <Toaster />
+        </ConvexAuthProvider>
+      ) : (
+        <>
+          <AppRoutes />
+          <Toaster />
+        </>
+      )}
     </RootErrorBoundary>
   </StrictMode>,
 );

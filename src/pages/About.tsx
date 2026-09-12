@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { motion } from "framer-motion";
 import { ArrowRight, Star } from "lucide-react";
 import { RESTAURANT } from "@/data/restaurant";
+import { ABOUT_IMAGES } from "@/data/reviews";
 import {
   RatingStars,
   Reveal,
@@ -13,10 +14,10 @@ import {
 } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 
-const STORY_IMG =
-  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=75";
-const DETAIL_IMG =
-  "https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=900&q=75";
+const STORY_IMG = ABOUT_IMAGES.story.src;
+const STORY_FALLBACK = ABOUT_IMAGES.story.fallback;
+const DETAIL_IMG = ABOUT_IMAGES.detail.src;
+const DETAIL_FALLBACK = ABOUT_IMAGES.detail.fallback;
 
 const HIGHLIGHTS = [
   { label: "Established", value: String(RESTAURANT.established) },
@@ -33,7 +34,7 @@ const WHY = [
   },
   {
     title: "A varied menu",
-    body: "Veg and non-veg food, pastas and pizzas, steaks and sides — plus shakes, coffees and all-day beverages.",
+    body: "Pizzas and pastas, steaks and sushi, tandoor classics and dum biryanis — plus shakes, coffees and all-day beverages.",
   },
   {
     title: "Cafe + diner, in one room",
@@ -45,14 +46,14 @@ const WHY = [
   },
   {
     title: "A strong review presence",
-    body: `Around ${RESTAURANT.googleReviews} Google reviews at ${RESTAURANT.googleRating}★, and a ${RESTAURANT.zomatoRating}★ dining rating on Zomato.`,
+    body: `Around ${RESTAURANT.googleReviews} Google reviews at ${RESTAURANT.googleRating}★, and a ${RESTAURANT.zomatoRating}★ rating on Zomato.`,
   },
 ] as const;
 
 export default function About() {
   usePageMeta(
-    "About Us — Roma's Café Diner | Since 2016",
-    "Roma's Café Diner has been serving Varanasi since 2016 — a cafe, restaurant and diner with a varied menu. 4.3★ on Google with 9,500+ reviews.",
+    "About Us — Roma's Café Diner, Lanka Varanasi | Since 2016",
+    "Roma's Café Diner has been serving Lanka, Varanasi since 2016 — pizzas, pastas, steaks, sushi & more. 4.3★ on Google, 4.5★ on Zomato.",
   );
 
   return (
@@ -62,6 +63,7 @@ export default function About() {
         <div className="absolute inset-0" aria-hidden="true">
           <SmartImage
             src={STORY_IMG}
+            fallbackSrc={STORY_FALLBACK}
             alt=""
             className="size-full opacity-25"
             priority
@@ -93,9 +95,9 @@ export default function About() {
               className="mt-6 max-w-xl text-[15px] leading-relaxed text-ivory/65 md:text-base"
             >
               Roma&rsquo;s Café Diner has been serving guests in{" "}
-              {RESTAURANT.city} since {RESTAURANT.established} — one room that
-              works as a cafe, a restaurant and a diner, with a menu that
-              covers breakfast-table classics to late-evening plates.
+              {RESTAURANT.area}, {RESTAURANT.city} since {RESTAURANT.established} —
+              one room that works as a cafe, a restaurant and a diner, with a
+              menu that runs from pizzas and pastas to sushi and dum biryani.
             </motion.p>
           </motion.div>
         </div>
@@ -117,15 +119,14 @@ export default function About() {
               <Reveal delay={0.08} className="mt-6 space-y-4 text-[15px] leading-relaxed text-muted-foreground">
                 <p>
                   There&rsquo;s no single way to visit Roma&rsquo;s. Some
-                  tables are here for a plate of honey chilli potatoes and a
-                  shake. Some are working through a late lunch of pastas and
-                  steaks. Some just want coffee and something sweet.
+                  tables are here for honey chilli potatoes and a KitKat shake.
+                  Some are working through lasagne, steaks or a dum biryani.
+                  Some just want coffee and a slice of tiramisu.
                 </p>
                 <p>
-                  The menu is built to cover all of it — veg and non-veg
-                  plates, wok-tossed noodles and fried rice, oven-baked
-                  lasagna, café sandwiches, and a beverages list that runs
-                  from masala tea to thick KitKat shakes.
+                  The menu is built to cover all of it — {RESTAURANT.cuisines.join(", ").toLowerCase()} —
+                  from wood-fired-style pizzas and wok-tossed noodles to sushi,
+                  dim sums and Banarasi matka kulfi.
                 </p>
                 <p>
                   What hasn&rsquo;t changed since {RESTAURANT.established} is
@@ -139,6 +140,7 @@ export default function About() {
               <div className="relative">
                 <SmartImage
                   src={DETAIL_IMG}
+                  fallbackSrc={DETAIL_FALLBACK}
                   alt="Coffee served at Roma's Café Diner"
                   className="aspect-[4/5] rounded-lg border border-border"
                 />
@@ -208,8 +210,8 @@ export default function About() {
                 <div>
                   <Star className="size-5 fill-brass text-brass" aria-hidden="true" />
                   <p className="mt-4 font-display text-xl font-semibold leading-snug tracking-tight text-ivory">
-                    {RESTAURANT.googleRating}★ from {RESTAURANT.googleReviews}{" "}
-                    guests on Google.
+                    {RESTAURANT.zomatoRating}★ on Zomato, {RESTAURANT.googleRating}★
+                    on Google.
                   </p>
                 </div>
                 <Button

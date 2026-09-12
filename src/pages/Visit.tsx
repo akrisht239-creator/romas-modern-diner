@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight, Clock, MapPin, Phone } from "lucide-react";
-import { RESTAURANT, telHref } from "@/data/restaurant";
+import { ArrowUpRight, Clock, MapPin, MessageCircle, Phone } from "lucide-react";
+import { RESTAURANT, isOpenNow, telHref } from "@/data/restaurant";
 import ReservationForm from "@/components/ReservationForm";
 import {
   Reveal,
@@ -23,11 +23,12 @@ const MAP_EMBED_SRC =
 
 export default function Visit() {
   usePageMeta(
-    "Visit Us — Roma's Café Diner | Location & Hours",
-    "Find Roma's Café Diner in Varanasi. Opening hours 11 AM – 11 PM daily, directions on Google Maps, and table enquiries. Call or send an enquiry to reserve.",
+    "Visit Us — Roma's Café Diner, Lanka Varanasi | Location, Hours & Booking",
+    "Find Roma's Café Diner at Swastik Plaza, Lanka, Varanasi. Open daily 11 AM – 11 PM. Call +91 99844 44095, WhatsApp, or send a table enquiry.",
   );
 
   const phone = telHref(RESTAURANT.phone);
+  const open = isOpenNow();
 
   return (
     <>
@@ -58,8 +59,9 @@ export default function Visit() {
               variants={staggerChild}
               className="mt-5 max-w-xl text-[15px] leading-relaxed text-ivory/65"
             >
-              Open every day from {RESTAURANT.openingHours}. Walk in, call
-              ahead, or send a table enquiry below.
+              Swastik Plaza, {RESTAURANT.area} — open every day from{" "}
+              {RESTAURANT.openingHours}. Walk in, call ahead, or send a table
+              enquiry below.
             </motion.p>
           </motion.div>
         </div>
@@ -86,23 +88,9 @@ export default function Visit() {
                     </span>
                     <div>
                       <p className="font-semibold text-ink">Address</p>
-                      {RESTAURANT.address ? (
-                        <p className="mt-0.5 leading-relaxed text-muted-foreground">
-                          {RESTAURANT.address}
-                        </p>
-                      ) : (
-                        <p className="mt-0.5 leading-relaxed text-muted-foreground">
-                          {RESTAURANT.city}, Uttar Pradesh —{" "}
-                          <a
-                            href={RESTAURANT.mapsUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-medium text-brass underline-offset-2 hover:underline"
-                          >
-                            find the exact location on Google Maps
-                          </a>
-                        </p>
-                      )}
+                      <p className="mt-0.5 leading-relaxed text-muted-foreground">
+                        {RESTAURANT.address}
+                      </p>
                     </div>
                   </li>
 
@@ -116,6 +104,19 @@ export default function Visit() {
                         {RESTAURANT.openingHours}
                         <span className="block text-sm text-muted-foreground/70">
                           Every day
+                        </span>
+                        <span
+                          className={`mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                            open
+                              ? "bg-emerald-700/10 text-emerald-800"
+                              : "bg-red-800/10 text-red-900"
+                          }`}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={`size-1.5 rounded-full ${open ? "bg-emerald-600" : "bg-red-700"}`}
+                          />
+                          {open ? "Open now" : "Currently closed"}
                         </span>
                       </p>
                     </div>
@@ -134,6 +135,15 @@ export default function Visit() {
                         >
                           {RESTAURANT.phoneDisplay ?? RESTAURANT.phone}
                         </a>
+                        {RESTAURANT.extraPhones.map((p) => (
+                          <a
+                            key={p.href}
+                            href={p.href}
+                            className="block text-sm leading-relaxed text-muted-foreground underline-offset-2 hover:text-brass hover:underline"
+                          >
+                            {p.display}
+                          </a>
+                        ))}
                       </div>
                     </li>
                   )}
@@ -153,7 +163,7 @@ export default function Visit() {
                   ) : (
                     <Button
                       asChild
-                      className="h-11 rounded-full bg-ink px-6 font-sans text-[13px] font-semibold tracking-wide text-ivory shadow-none transition-colors hover:bg-brass"
+                      className="h-11 rounded-full bg-ink px-6 font-sans text-[13px] font-semibold tracking-wide text-ink shadow-none transition-colors hover:bg-brass"
                     >
                       <a href="#reserve">Send Enquiry</a>
                     </Button>
@@ -168,6 +178,26 @@ export default function Visit() {
                       <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
                     </a>
                   </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="h-11 rounded-full border border-ink/20 bg-transparent px-6 font-sans text-[13px] font-semibold tracking-wide text-ink shadow-none transition-colors hover:bg-ink hover:text-ivory"
+                  >
+                    <a href={RESTAURANT.whatsapp} target="_blank" rel="noopener noreferrer">
+                      <MessageCircle className="mr-2 size-4" aria-hidden="true" />
+                      WhatsApp
+                    </a>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="h-11 rounded-full border border-ink/20 bg-transparent px-6 font-sans text-[13px] font-semibold tracking-wide text-ink shadow-none transition-colors hover:bg-ink hover:text-ivory"
+                  >
+                    <a href={RESTAURANT.zomatoBookUrl} target="_blank" rel="noopener noreferrer">
+                      Zomato Booking
+                      <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
+                    </a>
+                  </Button>
                 </div>
               </div>
             </Reveal>
@@ -176,7 +206,7 @@ export default function Visit() {
             <Reveal delay={0.1}>
               <div className="relative h-full min-h-[320px] overflow-hidden rounded-lg border border-border shadow-sm md:min-h-[420px]">
                 <iframe
-                  title="Map — Roma's Café Diner, Varanasi"
+                  title="Map — Roma's Café Diner, Lanka, Varanasi"
                   src={MAP_EMBED_SRC}
                   className="absolute inset-0 size-full"
                   style={{ border: 0 }}
